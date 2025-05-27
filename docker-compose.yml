@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # React Frontend
+  nutrisnap-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    depends_on:
+      - nutrisnap-api
+    networks:
+      - nutrisnap-network
+
+  # Node.js API Proxy
+  nutrisnap-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - FATSECRET_API_KEY=${FATSECRET_API_KEY}
+      - FATSECRET_SHARED_SECRET=${FATSECRET_SHARED_SECRET}
+    restart: unless-stopped
+    networks:
+      - nutrisnap-network
+
+  # Optional: Nginx Reverse Proxy (if you want more control)
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - nutrisnap-app
+      - nutrisnap-api
+    restart: unless-stopped
+    networks:
+      - nutrisnap-network
+    profiles:
+      - "with-proxy"
+
+networks:
+  nutrisnap-network:
+    driver: bridge
+
+volumes:
+  ssl-certs:

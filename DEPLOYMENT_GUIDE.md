@@ -44,12 +44,14 @@ git push -u origin main
 3. **Configure Environment Variables**:
    Add these in Vercel's Environment Variables section:
    ```
-   VITE_SUPABASE_URL=https://swgrbthpvxaxuwkhjuld.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3Z3JidGhwdnhheHV3a2hqdWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0MzIwNTgsImV4cCI6MjA2MzAwODA1OH0.Us0ZxqmziFfrK4f4p_VjxJ4VgqGnR6yhl1etW985Skc
-   VITE_GOOGLE_GEMINI_API_KEY=AIzaSyA5aOBUIaF54k6wpjDBFJxaK8uZPksG1pw
-   FATSECRET_API_KEY=d04d623cef3348229ccb4659da745f17
-   FATSECRET_SHARED_SECRET=9a17add138a845fdb376c8dc7417337d
+   VITE_SUPABASE_URL=your_supabase_url_here
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   VITE_GOOGLE_GEMINI_API_KEY=your_google_gemini_api_key_here
+   FATSECRET_API_KEY=your_fatsecret_api_key_here
+   FATSECRET_SHARED_SECRET=your_fatsecret_shared_secret_here
    ```
+   
+   **⚠️ SECURITY NOTE**: Never commit real API keys to your repository. Use environment variables in your deployment platform.
 
 4. **Deploy**:
    - Click "Deploy"
