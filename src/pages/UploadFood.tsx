@@ -56,6 +56,14 @@ interface FatSecretFoodResult {
 const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+// Debug function to check API key availability
+const checkAPIKey = () => {
+  const hasKey = !!GEMINI_API_KEY;
+  const keyLength = GEMINI_API_KEY ? GEMINI_API_KEY.length : 0;
+  console.log('Gemini API Key check:', { hasKey, keyLength, keyStart: GEMINI_API_KEY?.substring(0, 10) + '...' });
+  return hasKey;
+};
+
 // Helper function to convert file to base64
 async function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -102,12 +110,14 @@ function UploadFood() {
   const [editingMealItemData, setEditingMealItemData] = useState<NutritionResults | null>(null);
 
   // Define the steps for the food logging process
-  const steps = ['Upload Image', 'Identify Foods', 'Get Nutrition', 'Log Meal'];
-  // Fetch user ID on mount
+  const steps = ['Upload Image', 'Identify Foods', 'Get Nutrition', 'Log Meal'];  // Fetch user ID on mount
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUserId(user?.id || null);
+      
+      // Check API key on component mount
+      checkAPIKey();
     })();
   }, []);
   // Initialize user experience tracking
@@ -189,11 +199,20 @@ function UploadFood() {
     setCurrentStep(1);
     
     try {
+      // Check if API key is available
+      if (!GEMINI_API_KEY) {
+        throw new Error('Google Gemini API key is not configured. Please check environment variables.');
+      }
+      
+      console.log('Starting image analysis with Gemini...');
+      
       // Convert image to base64
       const base64Image = await fileToBase64(selectedFile);
+      console.log('Image converted to base64, size:', base64Image.length);
       
       // Initialize Gemini model
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      console.log('Gemini model initialized');
       
       // Create prompt for food identification
       const prompt = `Analyze this food image and identify all visible food items. Return only a simple list of food names, separated by commas. Focus on identifying specific food items that can be found in nutrition databases. For example: "Grilled Chicken, Brown Rice, Broccoli, Mixed Salad". Do not include any other text or explanations.`;
@@ -206,10 +225,14 @@ function UploadFood() {
         }
       };
       
+      console.log('Calling Gemini Vision API...');
+      
       // Call Gemini Vision API
       const result = await model.generateContent([prompt, imagePart]);
       const response = await result.response;
       const text = response.text();
+      
+      console.log('Gemini API response:', text);
       
       // Parse the response to extract food items
       const foodItems = text
@@ -217,6 +240,8 @@ function UploadFood() {
         .map(item => item.trim())
         .filter(item => item.length > 0)
         .slice(0, 10); // Limit to 10 items max
+      
+      console.log('Parsed food items:', foodItems);
       
       if (foodItems.length > 0) {
         setIdentifiedFoodItems(foodItems);
@@ -227,7 +252,25 @@ function UploadFood() {
       
     } catch (error) {
       console.error('Error analyzing image:', error);
-      setError('Failed to analyze image. Please try again with a clearer photo containing visible food items.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to analyze image. ';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          errorMessage += 'API configuration issue. Please contact support.';
+        } else if (error.message.includes('quota') || error.message.includes('limit')) {
+          errorMessage += 'API quota exceeded. Please try again later.';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage += 'Network connection issue. Please check your connection and try again.';
+        } else {
+          errorMessage += 'Please try again with a clearer photo containing visible food items.';
+        }
+      } else {
+        errorMessage += 'Please try again with a clearer photo containing visible food items.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
