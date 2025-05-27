@@ -13,6 +13,7 @@ import History from './pages/History';
 import Profile from './pages/Profile';
 import Home from './pages/Home'; // Import the new Home component
 import NotFound from './pages/NotFound';
+import GeminiDebugTest from './components/GeminiDebugTest';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -24,12 +25,10 @@ function App() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Session loaded:', session);
       setSession(session);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Auth state changed:', session);
       setSession(session);
     });
 
@@ -103,6 +102,9 @@ function App() {
               path="/profile"
               element={session ? <Profile /> : <Navigate to="/auth" replace />}
             />
+
+            {/* Debug route for testing Gemini API */}
+            <Route path="/debug" element={<GeminiDebugTest />} />
 
             {/* Add a catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
