@@ -33,11 +33,9 @@ module.exports = async function handler(req, res) {
 
     if (!searchTerm) {
       return res.status(400).json({ error: 'Search term is required' });
-    }
-
-    // FatSecret API credentials from environment variables
-    const API_KEY = process.env.FATSECRET_API_KEY;
-    const SHARED_SECRET = process.env.FATSECRET_SHARED_SECRET;
+    }    // FatSecret API credentials from environment variables
+    const API_KEY = process.env.VITE_FATSECRET_API_KEY;
+    const SHARED_SECRET = process.env.VITE_FATSECRET_SHARED_SECRET;
 
     if (!API_KEY || !SHARED_SECRET) {
       console.error('Missing FatSecret API credentials');
