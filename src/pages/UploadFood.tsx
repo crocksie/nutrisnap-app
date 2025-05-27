@@ -53,7 +53,7 @@ interface FatSecretFoodResult {
 }
 
 // Initialize Google Gemini AI
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // Helper function to convert file to base64
