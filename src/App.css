@@ -1,0 +1,741 @@
+/* App.css - For page-specific layouts, component overrides, and styles not covered by index.css */
+
+/* Main Content Area - Modernized */
+.main-content {
+  flex-grow: 1; /* Ensure it takes available vertical space */
+  background-color: var(--app-bg-color); /* Consistent light background */
+  color: var(--app-text-color); /* UPDATED */
+  padding-top: var(--spacing-large);
+  padding-bottom: var(--spacing-super-large); /* More space at the bottom */
+  width: 100%;
+}
+
+/* Headings within main-content already styled by index.css, no need to repeat */
+
+/* ========================================= */
+/* Common Component Styles                   */
+/* ========================================= */
+
+.app-card {
+  background-color: var(--surface-bg-color); /* UPDATED */
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-large);
+  box-shadow: var(--box-shadow-medium); /* Shadow can be themed via variable if needed */
+  margin-bottom: var(--spacing-large);
+  border: 1px solid var(--surface-border-color); /* UPDATED */
+}
+
+.app-card-header {
+  font-size: 1.5rem; /* h3 equivalent */
+  font-weight: 600;
+  color: var(--heading-text-color); /* UPDATED */
+  margin-bottom: var(--spacing-medium);
+  padding-bottom: var(--spacing-medium);
+  border-bottom: 1px solid var(--surface-border-color); /* UPDATED */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* For potential actions/icons in header */
+}
+
+/* General Page Layouts - Centered Content */
+.page-container {
+  max-width: 960px; /* Max width for page content within .main-content */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-medium);
+  padding-right: var(--spacing-medium);
+}
+
+/* ========================================= */
+/* Page Specific Styles - Modernized         */
+/* ========================================= */
+
+/* Home Page */
+.hero-section {
+  background-color: var(--surface-bg-color); /* UPDATED */
+  padding: var(--spacing-super-large) 0;
+  border-bottom: 1px solid var(--surface-border-color); /* UPDATED */
+}
+
+.hero-content h1 {
+  font-size: 2.5rem; /* Larger for hero */
+  font-weight: 700;
+  margin-bottom: var(--spacing-medium);
+}
+
+@media (min-width: 768px) {
+  .hero-content h1 {
+    font-size: 3rem;
+  }
+}
+
+.how-it-works-section {
+  padding: var(--spacing-super-large) 0;
+}
+
+.how-it-works-section h2 {
+  margin-bottom: var(--spacing-large);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-large);
+  margin-top: var(--spacing-large);
+}
+
+.step.app-card {
+  /* .app-card provides base styling */
+  text-align: center; /* Ensure content within card is centered */
+}
+
+.step h3 {
+  font-size: 1.25rem; /* h4 equivalent */
+  margin-top: var(--spacing-medium);
+  margin-bottom: var(--spacing-small);
+  color: var(--heading-text-color); /* UPDATED */
+}
+
+/* UploadFood Page */
+
+/* .upload-food-card is now .app-card */
+/* .upload-food-title is now .app-card-header or h2/h3 */
+
+.image-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-medium);
+  padding: var(--spacing-medium);
+  background-color: var(--app-bg-color); /* UPDATED - or a lighter surface variant if defined */
+  border-radius: var(--border-radius-medium);
+  border: 1px dashed var(--surface-border-color); /* UPDATED */
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: var(--border-radius-small);
+  object-fit: contain;
+}
+
+.nutrition-results, .edit-nutrition-form, .logged-foods-section {
+  /* These will use .app-card styling */
+  margin-top: var(--spacing-large);
+}
+
+.form-input-group {
+  margin-bottom: var(--spacing-medium);
+}
+
+.form-input-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: var(--spacing-small);
+  color: var(--app-text-color-secondary); /* UPDATED */
+}
+
+/* Specific to UploadFood if inputs need to be grouped with buttons */
+.input-with-button {
+  display: flex;
+  gap: var(--spacing-small);
+  align-items: center; /* Align items if button is not full height */
+}
+
+.input-with-button input[type="file"] {
+  flex-grow: 1;
+}
+
+.logged-food-item {
+  padding: var(--spacing-medium) 0;
+  border-bottom: 1px solid var(--surface-border-color); /* UPDATED */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-medium);
+}
+
+.logged-food-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.logged-food-details p {
+  margin: 0 0 var(--spacing-extra-small) 0;
+  font-size: 0.9rem;
+}
+
+.logged-food-details strong {
+  color: var(--app-text-color); /* UPDATED */
+}
+
+.logged-food-actions .btn {
+  margin-left: var(--spacing-small);
+}
+
+/* Profile Page */
+
+/* .profile-card, .goals-card, .settings-card are now .app-card */
+/* .profile-title is now .app-card-header or h2/h3 */
+
+.profile-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-large); /* Increased gap between form groups */
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: 1fr; /* Default to single column for mobile */
+  gap: var(--spacing-small) var(--spacing-medium);
+  align-items: center;
+}
+
+@media (min-width: 768px) { /* Tablet and above */
+  .profile-row {
+    grid-template-columns: 150px 1fr; /* Label and input/value */
+  }
+  .profile-label {
+    text-align: right;
+  }
+}
+
+.profile-label {
+  font-weight: 500;
+  color: var(--app-text-color-secondary); /* UPDATED */
+}
+
+.profile-value {
+  font-size: 1rem;
+  color: var(--app-text-color); /* UPDATED */
+  padding: var(--spacing-small) 0; /* Align with input padding */
+}
+
+/* Alert/Message Styling */
+.alert {
+  padding: var(--spacing-medium);
+  border-radius: var(--border-radius-medium);
+  margin-bottom: var(--spacing-medium);
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+}
+
+.alert-success {
+  background-color: var(--success-state-bg); /* UPDATED */
+  color: var(--success-state-text); /* UPDATED */
+  border-color: var(--color-success); /* Or a generic --success-state-border if defined */
+}
+
+.alert-danger {
+  background-color: var(--error-state-bg); /* UPDATED */
+  color: var(--error-state-text); /* UPDATED */
+  border-color: var(--color-danger); /* Or a generic --error-state-border if defined */
+}
+
+.alert-info {
+  background-color: var(--info-state-bg); /* UPDATED */
+  color: var(--info-state-text); /* UPDATED */
+  border-color: var(--color-accent-primary); /* Or a generic --info-state-border if defined */
+}
+
+/* History Page */
+
+/* .history-card is now .app-card */
+/* .history-title is now .app-card-header or h2/h3 */
+
+.history-filters {
+  background-color: var(--surface-bg-color); /* UPDATED */
+  padding: var(--spacing-medium);
+  border-radius: var(--border-radius-medium);
+  margin-bottom: var(--spacing-large);
+  box-shadow: var(--box-shadow-small);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-medium);
+  align-items: center;
+}
+
+.history-filters .form-input-group {
+  margin-bottom: 0; /* Remove bottom margin as gap handles it */
+  flex-grow: 1;
+}
+
+.history-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-large);
+}
+
+/* Dashboard Page */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-large);
+}
+
+/* .summary-card, .quick-actions-card, .recent-activity-card {
+  These will use .app-card styling
+} */
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-small) 0;
+  border-bottom: 1px solid var(--surface-border-color); /* UPDATED */
+}
+.summary-item:last-child {
+  border-bottom: none;
+}
+.summary-item-label {
+  color: var(--app-text-color-secondary); /* UPDATED */
+}
+.summary-item-value {
+  font-weight: 600;
+  color: var(--app-text-color); /* UPDATED */
+}
+
+.quick-actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-medium);
+}
+
+/* General Table Styling (if not using a specific component library) */
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-medium);
+  font-size: 0.9rem;
+}
+
+.app-table th, .app-table td {
+  text-align: left;
+  padding: var(--spacing-small) var(--spacing-medium);
+  border-bottom: 1px solid var(--surface-border-color); /* UPDATED */
+}
+
+.app-table th {
+  background-color: var(--app-bg-color); /* UPDATED - or a lighter surface variant */
+  font-weight: 600;
+  color: var(--app-text-color-muted); /* UPDATED */
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.app-table tbody tr:hover {
+  background-color: var(--surface-border-color-hover); /* UPDATED - or a specific hover var */
+}
+
+/* Loading and Error States - General */
+.loading-spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-extra-large);
+  min-height: 200px; /* Ensure it has some height */
+}
+
+/* Basic CSS spinner */
+.spinner {
+  border: 4px solid var(--surface-border-color); /* UPDATED */
+  border-top: 4px solid var(--interactive-primary-bg); /* UPDATED */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+/* @keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} */
+
+/* .error-message {
+  Use .alert .alert-danger
+} */
+
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-extra-large);
+  background-color: var(--surface-bg-color); /* UPDATED */
+  border-radius: var(--border-radius-large);
+  border: 1px dashed var(--surface-border-color); /* UPDATED */
+  color: var(--app-text-color-muted); /* UPDATED */
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-medium);
+  opacity: 0.5;
+}
+
+.empty-state h4 {
+  color: var(--heading-text-color); /* UPDATED */
+}
+
+/* Styles for the main navigation bar */
+.main-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* Ensure it takes full width within its container */
+}
+
+.main-navbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Adjust as needed */
+}
+
+.main-navbar-right-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Adjust as needed */
+  margin-left: auto; /* Pushes the group to the right */
+}
+
+.btn-icon {
+  background-color: transparent;
+  border: none;
+  color: var(--interactive-secondary-text); /* UPDATED */
+  padding: 0.5rem;
+  border-radius: var(--border-radius-medium); /* UPDATED from --border-radius-md */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s; /* UPDATED from var(--transition-speed) */
+}
+
+.btn-icon:hover {
+  background-color: var(--interactive-secondary-bg-hover); /* UPDATED */
+  color: var(--interactive-secondary-text-hover); /* UPDATED */
+}
+
+.btn-icon:focus, .btn-icon:focus-visible { /* UPDATED for consistency */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 0 3px rgba(var(--interactive-focus-ring-color-rgb), 0.3); /* UPDATED */
+}
+
+
+/* Page-specific styles */
+/* ...existing code... */
+
+/* Cleanup old specific styles that are now covered by common classes or refined variables */
+/* Remove .upload-food-card, .profile-card, .history-card etc. if components use .app-card */
+/* Remove .upload-food-title, .profile-title, .history-title if components use .app-card-header or hX */
+/* Remove .upload-food-btn, .profile-btn if components use .btn */
+/* Remove .upload-food-loading, .history-loading, .profile-loading if using .loading-spinner-container or .alert */
+/* Remove .upload-food-error, .history-error, .profile-error if using .alert .alert-danger */
+/* Remove .history-empty if using .empty-state */
+
+/* Ensure specific page root classes like .upload-food-root, .profile-page, .history-page are minimal */
+/* and primarily delegate to .page-container and .app-card for structure. */
+
+/* SmartUserGuide Component Styles */
+.smart-guide {
+  background: var(--surface-primary-color);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-medium);
+  padding: var(--spacing-medium);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-subtle);
+}
+
+/* Compact view for expert users */
+.smart-guide.compact {
+  padding: var(--spacing-small);
+  background: var(--surface-secondary-color);
+}
+
+.guide-compact-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+}
+
+.guide-icon-small {
+  font-size: 1rem;
+  color: var(--app-text-color-secondary);
+  width: 20px;
+  text-align: center;
+}
+
+.guide-quick-tip {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--app-text-color-secondary);
+}
+
+.guide-actions {
+  display: flex;
+  gap: var(--spacing-extra-small);
+}
+
+.guide-help-btn, .guide-video-btn {
+  padding: 2px 4px;
+  font-size: 0.75rem;
+  color: var(--app-text-color-secondary);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.guide-help-btn:hover, .guide-video-btn:hover {
+  opacity: 1;
+  color: var(--color-interactive-blue);
+}
+
+/* Minimal view for experienced users */
+.smart-guide.minimal {
+  padding: var(--spacing-small) var(--spacing-medium);
+}
+
+.guide-minimal-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-medium);
+}
+
+.guide-step-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--app-text-color);
+}
+
+.guide-expand-btn {
+  padding: var(--spacing-extra-small);
+  color: var(--app-text-color-secondary);
+  transition: color 0.2s ease;
+}
+
+.guide-expand-btn:hover {
+  color: var(--color-interactive-blue);
+}
+
+/* Expanded view for new users or when requested */
+.smart-guide.expanded {
+  padding: var(--spacing-medium);
+}
+
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-medium);
+}
+
+.guide-title-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+}
+
+.guide-icon {
+  font-size: 1.5rem;
+  width: 30px;
+  text-align: center;
+}
+
+.guide-header h3 {
+  margin: 0;
+  color: var(--heading-text-color);
+  font-size: 1.125rem;
+}
+
+.guide-header-actions {
+  display: flex;
+  gap: var(--spacing-small);
+  align-items: center;
+}
+
+.guide-collapse-btn, .guide-dismiss-btn {
+  padding: var(--spacing-extra-small);
+  color: var(--app-text-color-secondary);
+  transition: color 0.2s ease;
+}
+
+.guide-collapse-btn:hover, .guide-dismiss-btn:hover {
+  color: var(--color-interactive-blue);
+}
+
+.guide-content {
+  margin-top: var(--spacing-small);
+}
+
+.guide-quick-tip-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+  padding: var(--spacing-small);
+  background: var(--surface-secondary-color);
+  border-radius: var(--border-radius-small);
+  margin-bottom: var(--spacing-medium);
+}
+
+.guide-quick-tip-section i {
+  color: var(--color-interactive-orange);
+  font-size: 0.875rem;
+}
+
+.guide-quick-tip-section span {
+  font-weight: 500;
+  color: var(--app-text-color);
+}
+
+.guide-detailed-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guide-detailed-tips li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-small);
+  margin-bottom: var(--spacing-small);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.guide-detailed-tips li:last-child {
+  margin-bottom: 0;
+}
+
+.guide-detailed-tips i {
+  color: var(--color-interactive-green);
+  font-size: 0.75rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Video Modal Styles */
+.video-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-medium);
+}
+
+.video-modal {
+  background: var(--surface-primary-color);
+  border-radius: var(--border-radius);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: var(--shadow-strong);
+}
+
+.video-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-medium);
+  border-bottom: 1px solid var(--surface-border-color);
+}
+
+.video-modal-header h4 {
+  margin: 0;
+  color: var(--heading-text-color);
+}
+
+.video-close-btn {
+  padding: var(--spacing-small);
+  color: var(--app-text-color-secondary);
+  font-size: 1.25rem;
+  transition: color 0.2s ease;
+}
+
+.video-close-btn:hover {
+  color: var(--color-interactive-red);
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-modal-footer {
+  padding: var(--spacing-medium);
+  border-top: 1px solid var(--surface-border-color);
+  background: var(--surface-secondary-color);
+}
+
+.video-modal-footer p {
+  margin: 0;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .guide-header {
+    flex-direction: column;
+    gap: var(--spacing-small);
+    align-items: flex-start;
+  }
+
+  .guide-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .guide-minimal-content {
+    flex-wrap: wrap;
+    gap: var(--spacing-small);
+  }
+
+  .video-modal {
+    margin: var(--spacing-small);
+    max-height: 95vh;
+  }
+
+  .video-modal-overlay {
+    padding: var(--spacing-small);
+  }
+}
+
+/* Animation for smooth transitions */
+.smart-guide {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* States for different user experience levels */
+.smart-guide.compact:hover {
+  background: var(--surface-hover-color);
+}
+
+.smart-guide.minimal:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+/* ...existing code... */
