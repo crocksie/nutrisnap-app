@@ -1,7 +1,7 @@
 # 🚨 API KEY SECURITY ISSUE IDENTIFIED
 
 ## Problem Found
-The Google Gemini API key `AIzaSyA5aOBUIaF54k6wpjDBFJxaK8uZPksG1pw` is **INVALID/DISABLED**.
+The Google Gemini API key provided was **INVALID/DISABLED**.
 
 When tested directly with curl, Google returns:
 ```json
