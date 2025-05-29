@@ -28,8 +28,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/fatsecret', async (req, res) => {
-  const { foodDescription } = req.body;
-  if (!foodDescription) return res.status(400).json({ error: 'Missing foodDescription' });
+  const { searchTerm } = req.body;
+  if (!searchTerm) return res.status(400).json({ error: 'Missing searchTerm' });
 
   const fatsecretApiUrl = 'https://platform.fatsecret.com/rest/server.api';
   const method = 'foods.search';
@@ -64,14 +64,13 @@ app.post('/api/fatsecret', async (req, res) => {
     });
     return response.json();
   }
-
   // First, try the original term
-  let data = await searchFatSecret(foodDescription);
+  let data = await searchFatSecret(searchTerm);
   if (!data.foods || !data.foods.food || data.foods.food.length === 0) {
-    console.log('No foods found for original term:', foodDescription, 'Response:', JSON.stringify(data));
+    console.log('No foods found for original term:', searchTerm, 'Response:', JSON.stringify(data));
     // If no results, try plural (add 's')
-    let plural = foodDescription;
-    if (!foodDescription.endsWith('s')) plural = foodDescription + 's';
+    let plural = searchTerm;
+    if (!searchTerm.endsWith('s')) plural = searchTerm + 's';
     data = await searchFatSecret(plural);
   }
   if (!data.foods || !data.foods.food || data.foods.food.length === 0) {

@@ -12,7 +12,7 @@ API keys were accidentally committed to the public GitHub repository, triggering
 ## API Keys That Need Immediate Rotation
 
 ### 1. Google Gemini API Key
-- **Exposed Key**: `AIzaSyA5aOBUIaF54k6wpjDBFJxaK8uZPksG1pw`
+- **Exposed Key**: `[REDACTED - Key was rotated]`
 - **Action**: Generate new key at [Google AI Studio](https://aistudio.google.com/app/apikey)
 
 ### 2. Supabase Keys
@@ -20,8 +20,8 @@ API keys were accidentally committed to the public GitHub repository, triggering
 - **Action**: Check Supabase dashboard for unauthorized access
 
 ### 3. FatSecret API Keys
-- **API Key**: `d04d623cef3348229ccb4659da745f17`
-- **Shared Secret**: `9a17add138a845fdb376c8dc7417337d`
+- **API Key**: `[REDACTED - Keys were rotated]`
+- **Shared Secret**: `[REDACTED - Keys were rotated]`
 - **Action**: Regenerate at [FatSecret Platform](https://platform.fatsecret.com/)
 
 ## Next Steps

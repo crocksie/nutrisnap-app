@@ -13,7 +13,6 @@ import History from './pages/History';
 import Profile from './pages/Profile';
 import Home from './pages/Home'; // Import the new Home component
 import NotFound from './pages/NotFound';
-import GeminiDebugTest from './components/GeminiDebugTest';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -102,9 +101,6 @@ function App() {
               path="/profile"
               element={session ? <Profile /> : <Navigate to="/auth" replace />}
             />
-
-            {/* Debug route for testing Gemini API */}
-            <Route path="/debug" element={<GeminiDebugTest />} />
 
             {/* Add a catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />

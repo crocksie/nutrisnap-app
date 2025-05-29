@@ -22,6 +22,12 @@ interface NutritionResults {
   micros?: { [key: string]: string }; // Optional micros with string values
 }
 
+// Interface for identified food items with estimated portions
+interface IdentifiedFoodItem {
+  food: string;
+  estimatedGrams: number;
+}
+
 // Add a type for Supabase meal row
 interface MealRow {
   id: string;
@@ -54,15 +60,12 @@ interface FatSecretFoodResult {
 
 // Initialize Google Gemini AI
 const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
+
+
+
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-// Debug function to check API key availability
-const checkAPIKey = () => {
-  const hasKey = !!GEMINI_API_KEY;
-  const keyLength = GEMINI_API_KEY ? GEMINI_API_KEY.length : 0;
-  console.log('Gemini API Key check:', { hasKey, keyLength, keyStart: GEMINI_API_KEY?.substring(0, 10) + '...' });
-  return hasKey;
-};
+
 
 // Helper function to convert file to base64
 async function fileToBase64(file: File): Promise<string> {
@@ -82,7 +85,7 @@ async function fileToBase64(file: File): Promise<string> {
 function UploadFood() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-  const [identifiedFoodItems, setIdentifiedFoodItems] = useState<string[] | null>(null);
+  const [identifiedFoodItems, setIdentifiedFoodItems] = useState<IdentifiedFoodItem[] | null>(null);
   const [selectedFoodForNutrition, setSelectedFoodForNutrition] = useState<string | null>(null);
   const [nutritionResults, setNutritionResults] = useState<NutritionResults | null>(null);
   const [fetchedNutritionForAllItems, setFetchedNutritionForAllItems] = useState<Map<string, NutritionResults>>(new Map());
@@ -115,9 +118,6 @@ function UploadFood() {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUserId(user?.id || null);
-      
-      // Check API key on component mount
-      checkAPIKey();
     })();
   }, []);
   // Initialize user experience tracking
@@ -214,8 +214,20 @@ function UploadFood() {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       console.log('Gemini model initialized');
       
-      // Create prompt for food identification
-      const prompt = `Analyze this food image and identify all visible food items. Return only a simple list of food names, separated by commas. Focus on identifying specific food items that can be found in nutrition databases. For example: "Grilled Chicken, Brown Rice, Broccoli, Mixed Salad". Do not include any other text or explanations.`;
+      // Create prompt for food identification with portion estimation
+      const prompt = `Analyze this food image and identify all visible food items with estimated portion sizes. For each food item, provide the name and estimated weight in grams based on visual cues like plate size, portion appearance, and common serving sizes.
+
+Return the results as a JSON array with this format:
+[{"food": "Food Name", "estimatedGrams": 150}, {"food": "Another Food", "estimatedGrams": 80}]
+
+Guidelines for portion estimation:
+- Use visual references like plate size, utensils, hands if visible
+- Consider typical serving sizes (e.g., chicken breast ~150g, apple ~180g, slice of bread ~30g)
+- For multiple items, estimate each separately
+- If uncertain about size, use reasonable typical portions
+- Minimum 20g, maximum 500g per item
+
+Focus on identifying specific food items that can be found in nutrition databases.`;
       
       // Create image part for the API
       const imagePart = {
@@ -231,17 +243,36 @@ function UploadFood() {
       const result = await model.generateContent([prompt, imagePart]);
       const response = await result.response;
       const text = response.text();
+        console.log('Gemini API response:', text);
       
-      console.log('Gemini API response:', text);
+      // Parse the response to extract food items with estimated amounts
+      let foodItems: IdentifiedFoodItem[] = [];
       
-      // Parse the response to extract food items
-      const foodItems = text
-        .split(',')
-        .map(item => item.trim())
-        .filter(item => item.length > 0)
-        .slice(0, 10); // Limit to 10 items max
+      try {
+        // Try to parse as JSON first (new format with portion estimation)
+        const jsonResponse = JSON.parse(text.replace(/```json|```/g, '').trim());
+        if (Array.isArray(jsonResponse)) {
+          foodItems = jsonResponse.map((item: { food: string; estimatedGrams: number }) => ({
+            food: item.food,
+            estimatedGrams: Math.min(Math.max(item.estimatedGrams || 100, 20), 500) // Clamp between 20-500g
+          }));
+        }
+      } catch {
+        // Fallback to old format (comma-separated list)
+        console.log('Using fallback parsing for non-JSON response');
+        const simpleItems = text
+          .split(',')
+          .map(item => item.trim())
+          .filter(item => item.length > 0)
+          .slice(0, 10); // Limit to 10 items max
+          
+        foodItems = simpleItems.map(item => ({
+          food: item,
+          estimatedGrams: 100 // Default to 100g for fallback
+        }));
+      }
       
-      console.log('Parsed food items:', foodItems);
+      console.log('Parsed food items with estimated amounts:', foodItems);
       
       if (foodItems.length > 0) {
         setIdentifiedFoodItems(foodItems);
@@ -249,9 +280,14 @@ function UploadFood() {
       } else {
         throw new Error('No food items were identified in the image');
       }
-      
-    } catch (error) {
+        } catch (error) {
       console.error('Error analyzing image:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        apiKeyExists: !!GEMINI_API_KEY,
+        apiKeyLength: GEMINI_API_KEY ? GEMINI_API_KEY.length : 0
+      });
       
       // Provide more specific error messages
       let errorMessage = 'Failed to analyze image. ';
@@ -297,9 +333,8 @@ function UploadFood() {
       }
     }
   };
-
   // Fetch nutrition for a food item
-  const fetchNutritionForFoodItem = async (foodName: string) => {
+  const fetchNutritionForFoodItem = async (foodName: string, estimatedGrams?: number) => {
     setLoading(true);
     setError(null);
     
@@ -307,11 +342,14 @@ function UploadFood() {
       // Simulate nutrition fetching - in a real app this would use FatSecret API
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Use estimated grams or default to 100g
+      const amount = estimatedGrams || 100;
+      
       // Simulate nutrition data
       const mockNutrition: NutritionResults = {
         food: foodName,
         calories: Math.floor(Math.random() * 200) + 50,
-        amount: 100,
+        amount: amount,
         macros: {
           protein: Math.floor(Math.random() * 20) + 5,
           carbs: Math.floor(Math.random() * 30) + 10,
@@ -363,12 +401,12 @@ function UploadFood() {
         totalFat += itemNutrition.macros.fat;
         totalFibre += itemNutrition.macros.fibre || 0;
         totalAmount += itemNutrition.amount || 100;
+      }      let combinedFoodDescription = mealFoodDescriptions.join(', ');
+      if (mealFoodDescriptions.length > 1) {
+        combinedFoodDescription = `Mixed Meal: ${mealFoodDescriptions.join(' + ')}`;
       }
 
-      let combinedFoodDescription = mealFoodDescriptions.join(', ');
-      if (mealFoodDescriptions.length > 1) {
-        combinedFoodDescription = `Mixed Meal: ${combinedFoodDescription}`;
-      }      // Insert into Supabase
+      // Insert into Supabase
       const { error } = await supabase
         .from('meals')
         .insert([{
@@ -549,13 +587,12 @@ function UploadFood() {
       const apiEndpoint = import.meta.env.PROD 
         ? '/api/fatsecret' // Vercel serverless function in production
         : 'http://localhost:3001/api/fatsecret'; // Local proxy in development
-        
-      const proxyResponse = await fetch(apiEndpoint, {
+          const proxyResponse = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ food_name: searchTerm }),
+        body: JSON.stringify({ searchTerm: searchTerm }),
       });
       
       const fatsecretData = await proxyResponse.json();
@@ -626,7 +663,7 @@ function UploadFood() {
         return newMap;
       });
       
-      setFetchedBaseNutritionForAllItems(prev => {
+            setFetchedBaseNutritionForAllItems(prev => {
         const newMap = new Map(prev);
         newMap.delete(correctionTargetFood); // Remove old entry
         newMap.set(correctedNutrition.food, correctedNutrition); // Add corrected entry
@@ -636,7 +673,10 @@ function UploadFood() {
       // Update identified food items
       setIdentifiedFoodItems(prev => 
         prev ? prev.map(item => 
-          item === correctionTargetFood ? correctedNutrition.food : item
+          item.food === correctionTargetFood ? {
+            ...item,
+            food: correctedNutrition.food
+          } : item
         ) : prev
       );
       
@@ -795,6 +835,7 @@ function UploadFood() {
     };
   };
 
+
   return (
     <div className="page-container upload-food-page food-logging-container">
       <h1 className="text-center">Log Your Meal</h1>
@@ -811,7 +852,9 @@ function UploadFood() {
       )}
 
       {/* General errors, shown if no specific item is being processed for nutrition */}
-      {error && !selectedFoodForNutrition && !nutritionResults && <div className="alert alert-danger">{error}</div>}      <div className="app-card">
+      {error && !selectedFoodForNutrition && !nutritionResults && <div className="alert alert-danger">{error}</div>}
+
+      <div className="app-card">
         <div className="app-card-header">
           <h2>Analyze New Meal</h2>
         </div>        <div className="app-card-content">
@@ -841,16 +884,15 @@ function UploadFood() {
             <p>Select an item to get its nutritional information and add it to your meal.</p>
           </div>
           <div className="app-card-content">
-            <ul className="food-items-list">
-              {identifiedFoodItems.map((item, index) => { // item is from Gemini (e.g. "Scrambled eggs")
-                const isCurrentItemSelectedForDetails = selectedFoodForNutrition === item;
+            <ul className="food-items-list">              {identifiedFoodItems.map((item, index) => { // item is IdentifiedFoodItem with food name and estimated grams
+                const isCurrentItemSelectedForDetails = selectedFoodForNutrition === item.food;
                 
                 // Check if nutrition for a food matching this Gemini item name is in our meal map
                 // This is a simple check; more robust matching might be needed if names vary wildly
                 const foodInMealMap = Array.from(fetchedNutritionForAllItems.values()).find(fi => 
-                  fi.food.toLowerCase() === item.toLowerCase() || 
-                  item.toLowerCase().includes(fi.food.toLowerCase()) || 
-                  fi.food.toLowerCase().includes(item.toLowerCase())
+                  fi.food.toLowerCase() === item.food.toLowerCase() || 
+                  item.food.toLowerCase().includes(fi.food.toLowerCase()) || 
+                  fi.food.toLowerCase().includes(item.food.toLowerCase())
                 );
                 const isNutritionAddedToMeal = !!foodInMealMap;
 
@@ -862,16 +904,14 @@ function UploadFood() {
                   buttonText = `Details for ${nutritionResults.food} Shown`;
                 } else if (isNutritionAddedToMeal) {
                   buttonText = `${foodInMealMap!.food} Added to Meal`;
-                }
-
-                return (
+                }                return (
                   <li key={index} className={`food-item ${isCurrentItemSelectedForDetails ? 'selected-item' : ''} ${isNutritionAddedToMeal ? 'item-in-meal' : ''}`}>                    <div className="food-item-header">
-                      <span className="food-item-name">{item}</span>
+                      <span className="food-item-name">{item.food} (~{item.estimatedGrams}g)</span>
                       <div className="food-item-actions">
                         <button 
                           onClick={async () => {
-                            setSelectedFoodForNutrition(item); // Mark this Gemini item as selected for detail view
-                            await fetchNutritionForFoodItem(item); // Fetch/re-fetch its nutrition
+                            setSelectedFoodForNutrition(item.food); // Mark this Gemini item as selected for detail view
+                            await fetchNutritionForFoodItem(item.food, item.estimatedGrams); // Fetch/re-fetch its nutrition with estimated amount
                           }} 
                           className={`btn btn-sm ${isNutritionAddedToMeal ? (isCurrentItemSelectedForDetails && nutritionResults ? 'btn-success' : 'btn-info') : 'btn-outline-primary'}`}
                           disabled={loading && isCurrentItemSelectedForDetails && !nutritionResults} 
@@ -881,9 +921,9 @@ function UploadFood() {
                         
                         {/* Food Correction Button */}
                         <button
-                          onClick={() => handleCorrectionRequest(item)}
+                          onClick={() => handleCorrectionRequest(item.food)}
                           className="btn btn-sm btn-outline-warning correction-btn"
-                          title={`Correct "${item}" if AI misidentified it`}
+                          title={`Correct "${item.food}" if AI misidentified it`}
                           disabled={loading}
                         >
                           ✏️ Correct
@@ -947,7 +987,7 @@ function UploadFood() {
                     {/* Display error if fetching nutrition for THIS item failed */} 
                     {isCurrentItemSelectedForDetails && error && !nutritionResults && (
                         <div className="alert alert-warning item-error" style={{marginTop: '10px'}}>
-                            Error fetching details for "{item}": {error}
+                            Error fetching details for "{item.food}": {error}
                         </div>
                     )}
                   </li>
